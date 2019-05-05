@@ -1,4 +1,4 @@
 from TCPFullConnect import TCPFullConnect
 
 tcp = TCPFullConnect()
-tcp.scan("l", "127.0.0.1", "28201,49153")
+tcp.scan("s", "172.24.21.38", 5000)

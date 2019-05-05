@@ -9,13 +9,13 @@ class IPHeader:
         self.destIP = socket.inet_aton(destIP)
         self.compactHeader = None
 
-    # def fillIPHeader(self):
-    #     version_IHL = (IP_VERSION << 4) + IP_INTERNET_HEADER_LENGTH
-    #     #pktID = randint(0, 0xFFFF)
-    #     pktID = 1
-    #     protocol = socket.IPPROTO_TCP
-    #
-    #     self.compactHeader = struct.pack("!BBHHHBBH4s4s", version_IHL, IP_TYPE_OF_SERVICE, IP_INIT_LENGTH, pktID, IP_FLAG_FRAG_OFFSET, IP_TIME_TO_LIVE, protocol, IP_INIT_CHECKSUM, self.sourceIP, self.destIP)
+    def fillIPHeader2(self):
+        version_IHL = (IP_VERSION << 4) + IP_INTERNET_HEADER_LENGTH
+        pktID = randint(0, 0xFFFF)
+        protocol = socket.IPPROTO_TCP
+
+        self.compactHeader = struct.pack("!BBHHHBBH4s4s", version_IHL, IP_TYPE_OF_SERVICE, IP_INIT_LENGTH, pktID, IP_FLAG_FRAG_OFFSET, IP_TIME_TO_LIVE, protocol, IP_INIT_CHECKSUM, self.sourceIP, self.destIP)
+
     def fillIPHeader(self):
         ip_ihl = 5
         ip_ver = 4

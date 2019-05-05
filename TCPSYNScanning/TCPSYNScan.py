@@ -1,11 +1,16 @@
 import socket
 import struct
 import select
+import threading
+import os
+import time
+from scapy.all import sniff
 from IPHeader import IPHeader
 from TCPHeader import TCPHeader
 from constants import *
 
 class TCPSYNScan:
+
     def scan(self, sourceIP, destIP, format, portsList):
         if(format == 's'):
             #try:
@@ -38,37 +43,32 @@ class TCPSYNScan:
             print("Not a valid option")
         return
 
-    def scanPort(self, sourceIP, destIP, destPort):
+    def listenOnPort(self, sourceIP):
+        filterStr = "tcp and host " + sourceIP + " and port " + str(TCP_SOURCE_PORT)
+        packets=sniff(count=2,filter=filterStr)
+        for packet in packets:
+            if(packet['TCP'].flags == 'SA'):
+                print('Port is open')
+                break
+            if(packet['TCP'].flags == 'RA'):
+                print('Port is closed')
+        os._exit(0)
 
+    def scanPort(self, sourceIP, destIP, destPort):
         TCP = TCPHeader(sourceIP, destIP)
         TCP.fillTCPPacket(TCP_SOURCE_PORT, destPort)
 
         spoofedSYNPacket = TCP.compactHeader
-        print(struct.unpack("!HHLLBBHHH",TCP.compactHeader))
-        print(TCP.compactHeader)
-        print('Sendign to ', destIP)
 
-        maxTries = MAX_TRIES
-        while (maxTries > 0):
-            try:
-                sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_TCP)
-                sock.sendto(spoofedSYNPacket, (destIP, 0))
-            except:
-                print("Error")
-            rlist = [sock]
-            wlist = []
-            xlist = []
-            # retSubset = select.select(rlist, wlist, xlist, TIMEOUT)
-            # if(retSubset[0] == []):
-            #     maxTries -= 1
-            #     continue
-            replyPacket, ipAddr = sock.recvfrom(SOCK_BUFFER_SIZE)
-            #compactPacket = replyPacket[ICMP_START_INDEX:ICMP_END_INDEX]
-            # icmpEchoReply = ICMPPacket(compactPacket)
-            # if(icmpEchoReply.pktID == icmpEchoRequest.pktID):
-            #     print(remoteHostIP," is Alive")
-            #     sock.close()
-            #     break
-            print(replyPacket)
+        try:
+            childpid = os.fork()
+            if childpid == 0:
+                self.listenOnPort(sourceIP)
+            time.sleep(1)
+            sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_TCP)
+            sock.sendto(spoofedSYNPacket, (destIP, 0))
             sock.close()
+        except:
+            print("Error")
+        os.waitpid(childpid, 0)
         return

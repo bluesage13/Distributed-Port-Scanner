@@ -1,49 +1,117 @@
 import socket
+import struct
+import select
+import threading
+import os
+import time
+from multiprocessing import Process
+import threading
+from scapy.all import sniff
+
+MAX_PORTS_PER_THREAD = 25
+MAX_THREADS = 100
 
 class TCPFullConnect:
-    def scan(self, format, remoteHost, ports):
+    def __init__(self):
+        self.sniffer = None
+        self.threadList = []
+        self.maxPortsPerThread = MAX_PORTS_PER_THREAD
+        self.maxThreads = 0
+        self.totalPorts = 0
+        self.portStatus = {}
+
+    def scan(self, format, remoteHost, portsList):
+        print("FORMAT ", format)
+        if(type(portsList) == int):
+            temp = [portsList]
+            portsList = temp
+        self.totalPorts = len(portsList)
+        self.maxThreads = int(len(portsList) / MAX_PORTS_PER_THREAD) + 1
+        if(self.maxThreads > MAX_THREADS):
+            self.maxThreads = MAX_THREADS
+            self.maxPortsPerThread = int(numPorts/MAX_THREADS)
+
         if(format == 's'):
             try:
-                self.portScan(remoteHost, ports)
-            except:
-                print("Input not in correct format for option s")
+                self.scanPort(remoteHost, portsList[0])
+            except Exception as e:
+                print(e)
 
         elif(format == 'l'):
             try:
-                portList = ports.split(',')
+                portsList = portsList.split(',')
+                portsList = [int(x) for x in portsList]
 
-            except:
-                print("Input not in correct format for option l")
-            for port in portList:
-                self.portScan(remoteHost, int(port))
+                self.totalPorts = len(portsList)
+                self.maxThreads = int(len(portsList) / MAX_PORTS_PER_THREAD) + 1
+                if(self.maxThreads > MAX_THREADS):
+                    self.maxThreads = MAX_THREADS
+                    self.maxPortsPerThread = int(numPorts/MAX_THREADS)
+                self.initializeThreads(portsList, remoteHost)
+                print("Starting Thread::",  len(self.threadList))
+                for thread in self.threadList:
+                    thread.start()
+            except Exception as e:
+                print(e)
 
         elif(format == 'r'):
             try:
-                ports = ports.split(':')
-                firstNumber = int(ports[0])
-                lastNumber = int(ports[1])
+                portsList = portsList.split(':')
+                firstPort = int(portsList[0])
+                lastPort = int(portsList[1])
+                portsList = [x for x in range(firstPort, lastPort+1)]
 
-            except:
-                print("Input not in correct format for option r")
-                return
-
-            for port in range(firstNumber, lastNumber + 1):
-                self.portScan(remoteHost, port)
+                self.totalPorts = len(portsList)
+                self.maxThreads = int(len(portsList) / MAX_PORTS_PER_THREAD) + 1
+                if(self.maxThreads > MAX_THREADS):
+                    self.maxThreads = MAX_THREADS
+                    self.maxPortsPerThread = int(numPorts/MAX_THREADS)
+                self.initializeThreads(portsList, remoteHost)
+                print("TOTAL PORTS ", self.totalPorts)
+                print("Starting Threads::", len(self.threadList))
+                for thread in self.threadList:
+                    thread.start()
+            except Exception as e:
+               print(e)
+               return
 
         else:
             print("Not a valid option")
+        for thread in self.threadList:
+            thread.join()
         return
 
-    def portScan(self, remoteHost, port):
+    def threadScan(self, remoteHost, portsList):
+        for port in portsList:
+            self.scanPort(remoteHost, port)
+
+    def scanPort(self, remoteHost, port):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         returnCode = sock.connect_ex((remoteHost, port))
 
         try:
             if returnCode == 0:
-                print("Port : ", port, " at IP : ", remoteHost, " is Open")
+                self.portStatus[port] = "Open"
+                #print("Port : ", port, " at IP : ", remoteHost, " is Open")
             else:
-                print("Port : ", port, " at IP : ", remoteHost, " is Closed")
+                self.portStatus[port] = "Closed"
+                #print("Port : ", port, " at IP : ", remoteHost, " is Closed")
             sock.close()
         except:
             print("Conenction issue")
+        return
+
+    def initializeThreads(self, portsList, remoteHost):
+        numPorts = len(portsList)
+        start = 0
+        for i in range(0, self.maxThreads):
+            ports = []
+            if(start+self.maxPortsPerThread < numPorts):
+                ports = portsList[start:start+self.maxPortsPerThread]
+                start = start + self.maxPortsPerThread
+            else:
+                ports = portsList[start:numPorts]
+            thread = threading.Thread(target=self.threadScan, args=(remoteHost, ports,))
+            self.threadList.append(thread)
+        print("Threads Initialized")
         return

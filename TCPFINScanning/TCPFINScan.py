@@ -2,15 +2,14 @@ import socket
 import struct
 import select
 import threading
+from multiprocessing import Process
 import os
 import time
-from multiprocessing import Process
 from scapy.all import sniff
-from IPHeader import IPHeader
 from TCPHeader import TCPHeader
 from constants import *
 
-class TCPSYNScan:
+class TCPFINScan:
 
     def scan(self, sourceIP, destIP, format, portsList):
         if(format == 's'):
@@ -46,14 +45,14 @@ class TCPSYNScan:
 
     def listenOnPort(self, sourceIP):
         filterStr = "tcp and host " + sourceIP + " and port " + str(TCP_SOURCE_PORT)
-        packets=sniff(count=2,filter=filterStr)
+        packets=sniff(count=2,filter=filterStr,timeout=3)
         for packet in packets:
-            if(packet['TCP'].flags == 'SA'):
-                print('Port is open')
-                break
             if(packet['TCP'].flags == 'RA'):
                 print('Port is closed')
+                return
+        print("Port is open|filtered")
         return
+
 
     def scanPort(self, sourceIP, destIP, destPort):
         TCP = TCPHeader(sourceIP, destIP)
@@ -73,6 +72,6 @@ class TCPSYNScan:
             sock.close()
         except:
             print("Error")
-        # os.waitpid(childpid, 0)
+        #os.waitpid(childpid, 0)
         sniffer.join()
         return

@@ -1,12 +1,12 @@
 # cse509
 ## Distributed Network and TCP Port Scanner with Web UI
-
-Run the below files ( in the specified order ) and then open 2.html to issue jobs
-
-python3 User.py
-python3 app2.py
-python3 ControllingNode.py
-python3 ScanningNode.py
+Instructions to run the code:
+Open a new terminal to run each of the below commands and run them in the given order:
+* python3 User.py
+* python3 app2.py
+* python3 ControllingNode.py
+* sudo python3 ScanningNode.py (Can run this n number of times on n terminals to spawn new scanning nodes)
+* Open 2.html file in browser to provide commands.
 
 Potential jobs are:
 

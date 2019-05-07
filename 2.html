@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+
+        * {
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000000;
+        }
+
+        ul {
+            list-style-type: none;
+            margin: 0;
+            padding-left: 0;
+        }
+
+        h1 {
+            font-size: 30px;
+        }
+
+        h2 {
+            font-size: 25px;
+        }
+
+        p {
+            font-size: 15px;
+        }
+
+        a {
+            text-decoration: none;
+            font-size: 15px;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+
+        h1, h2, p, a, span{
+            color: #fff;
+        }
+        .scnd-font-color {
+            color: #9099b7;
+        }
+
+        .input-container {
+            position: relative;
+        }
+        input[type=text]{
+            font-size:20px;
+            width: 260px;
+            height: 50px;
+            margin-left: 20px;
+            margin-bottom: 20px;
+            padding-left: 10px;
+            background: #50597b;
+            color: #fff;
+            border: solid 1px #1f253d;
+            border-radius: 5px;
+        }
+        input[type=text]::-webkit-input-placeholder { /* WebKit browsers */
+            color: #fff;
+        }
+        input[type=text]:-moz-input-placeholder { /* Mozilla Firefox 4 to 18 */
+            color: #fff;
+        }
+        input[type=text]::-moz-input-placeholder { /* Mozilla Firefox 19+ */
+            color: #fff;
+        }
+        input[type=text]:-ms-input-placeholder { /* Internet Explorer 10+ */
+            color: #fff;
+        }
+        input[type=text]:focus {
+            outline: none; /* removes the default orange border when focus */
+            border: 1px solid #11a8ab;
+        }
+        .input-icon {
+            font-size: 22px;
+            position: absolute;
+            left: 31px;
+            top: 10px;
+        }
+        .input-icon.password-icon {
+            left: 35px;
+        }
+
+        .horizontal-list {
+            margin: 0;
+            padding: 0;
+            list-style-type: none;
+        }
+        .horizontal-list li {
+            float: left;
+        }
+
+        .clear {
+            clear: both;
+        }
+
+        .icon {
+            font-size: 25px;
+        }
+
+        .main {
+            display: block;
+            line-height: 60px;
+            margin: 0;
+            text-align: center;
+            border-top-left-radius: 5px;
+            border-top-right-radius: 5px;
+        }
+
+        .empty {
+            display: inline-block;
+
+            margin: 0;
+            text-align: center;
+        }
+        .empty {
+            width: 140px;
+        }
+
+        .button {
+            display: block;
+            width: 175px;
+            line-height: 50px;
+            font-size: 16px;
+            font-weight: 700;
+            text-align: center;
+            margin: 0 auto;
+            border-radius: 5px;
+            -webkit-transition: background .3s;
+            transition: background .3s;
+        }
+        .button:hover {
+            text-decoration: none;
+        }
+
+        .arrow-btn-container {
+            position: relative;
+        }
+        .arrow-btn {
+            position: absolute;
+            display: block;
+            width: 60px;
+            height: 60px;
+            -webkit-transition: background .3s;
+            transition: background .3s;
+        }
+        .arrow-btn:hover {
+            text-decoration: none;
+        }
+        .arrow-btn.left {
+            border-top-left-radius: 5px;
+        }
+        .arrow-btn.right {
+            border-top-right-radius: 5px;
+            right: 0;
+            top: 0;
+        }
+        .arrow-btn .icon {
+            display: block;
+            font-size: 18px;
+            border: 2px solid #fff;
+            border-radius: 100%;
+            line-height: 17px;
+            width: 21px;
+            margin: 20px auto;
+            text-align: center;
+        }
+        .arrow-btn.left .icon {
+            padding-right: 2px;
+        }
+
+        /* Dropdown Button */
+        .dropbtn {
+            #background-color: #4CAF50;
+            #color: white;
+            #padding: 16px;
+            #font-size: 16px;
+            #border: none;
+            width: 260px;
+            height: 50px;
+            margin-left: 20px;
+            margin-bottom: 20px;
+            padding-left: 45px;
+            background: #50597b;
+            color: #fff;
+            border: solid 1px #1f253d;
+            border-radius: 5px;
+            #text-align: center;
+            #text-align: center;
+            #position: center;
+        }
+
+
+        /** MAIN CONTAINER **/
+
+        .main-container {
+            font-family: 'Ubuntu', sans-serif;
+            width: 950px;
+            height: 1725px;
+            margin: 6em auto;
+        }
+        .right-container {}
+        .account {
+            height: 390px;
+        }
+        .account .titular {
+            padding: 10px 0;
+        }
+        .scan.button {
+            background: #e64c65;
+            margin: 10px auto;
+        }
+        .scan.button:hover {
+            background: #cc324b;
+        }
+        .account p {
+            text-align: center;
+        }
+
+
+            </style>
+    </head>
+    <body>
+
+
+        <form method="post" id="form">
+            <div class="main-container">
+
+                <h1 class="main"> Distributed Network and TCP Port Scanner </h1>
+                <!-- RIGHT-CONTAINER -->
+                <div class="right-container container horizontal-list">
+
+                    <div class="account"> <!-- ACCOUNT (RIGHT-CONTAINER) -->
+
+                        <div class="empty"></div>
+                        <div class="empty"></div>
+                        <div class="empty"></div>
+                        <div class="empty"></div>
+                        <div class="empty"></div>
+                        <div class="empty"></div>
+                        <div class="empty"></div>
+                        <div class="empty"></div>
+                        <div class="empty"></div>
+                        <div class="empty"></div>
+                        <div class="empty"></div>
+                        <div class="empty"></div>
+                        <div class="empty"></div>
+                        <div class="empty"></div>
+                        <div class="empty"></div>
+                        <div class="empty"></div>
+                        <div class="empty"></div>
+                        <div class="empty"></div>
+                        <div class="empty"></div>
+                        <div class="empty"></div>
+                        <div class="input-container">
+                            <h2 class="main"> IP Address</h2>
+                            <input type="text" placeholder="IP address(es)" id="ip" name="ipAddress">
+                        </div>
+                        <div class="empty"></div>
+                        <div class="empty"></div>
+                        <div class="empty"></div>
+                        <div class="empty"></div>
+                        <div class="empty"></div>
+                        <div class="empty"></div>
+                        <div class="empty"></div>
+                        <div class="empty"></div>
+                        <div class="empty"></div>
+                        <div class="empty"></div>
+                        <div class="empty"></div>
+                        <div class="empty"></div>
+                        <div class="empty"></div>
+                        <h2 class="main"> Port Number/Port Range</h2>
+                        <div class="empty"></div>
+                        <div class="empty"></div>
+                        <div class="empty"></div>
+                        <div class="empty"></div>
+                        <div class="empty"></div>
+                        <div class="input-container">
+                            <input type="text" placeholder="Port Number/Port Range" id="spn" name="sportnumber">
+                        </div>
+                        <div class="empty"></div>
+                        <div class="empty"></div>
+                        <div class="empty"></div>
+                        <div class="empty"></div>
+                        <div class="empty"></div>
+                        <div class="empty"></div>
+                        <div class="empty"></div>
+                        <div class="empty"></div>
+                        <div class="empty"></div>
+                        <div class="empty"></div>
+                        <div class="empty"></div>
+                        <div class="empty"></div>
+                        <div class="empty"></div>
+                        <h2 class="main"> Mode of Scanning</h2>
+                        <div class="empty"></div>
+                        <div class="empty"></div>
+                        <div class="empty"></div>
+                        <div class="empty"></div>
+                        <div class="empty"></div>
+                        <div class="input-container">
+                         <select name="select01" id="select1" onchange="handleSelect()">
+                         <option value="isAlive" id="1">isAlive</option>
+                         <option value="TCPFULL" id="2">Normal Port Scanning</option>
+                         <option value="TCPSYN" id="3">TCP Syn Scanning</option>
+                         <option value="TCPFIN" id="4">TCP FIN Scanning</option>
+                         </select>
+                        </div>
+                        <div class="input-container">
+                         <select name="select02" id="select2" onchange="handleSelect()">
+                         <option value="s" id="5">Single</option>
+                         <option value="l" id="6">List</option>
+                         <option value="r" id="7">Range</option>
+                         </select>
+                        </div>
+                        <!--
+                        <div class="input-container">
+
+                            <input type="text" placeholder="Scanning mode - nps, tss, tfs" id="sm" name="scanningmode">
+                        </div>-->
+
+                        <div class="empty"></div>
+                        <div class="empty"></div>
+                        <div class="empty"></div>
+                        <button class="scan button" href="#22">SCAN</button>
+                        <iframe id="myHtml" src="results/result.txt" height="200" width="1000" style="background: #FFFFFF"></iframe>
+                    </div>
+
+                    <div>
+                        <div>
+
+
+                </form>
+
+        <p id="square"></p>
+        <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+        <script>
+
+            $('#form').on('submit', function(e)
+                          {   //Mode
+                              if (document.getElementById("select1").value == 'isAlive')
+                              {
+                              var optionID=document.getElementById('1');
+                              }
+                              else if (document.getElementById("select1").value == 'TCPFULL')
+                              {
+                                var optionID=document.getElementById('2');
+                              }
+                              else if (document.getElementById("select1").value == 'TCPSYN')
+                              {
+                                var optionID=document.getElementById('3');
+                              }
+                              else
+                                var optionID=document.getElementById('4');
+                              //Format
+                              if (document.getElementById("select2").value == 's')
+                              {
+                              var format=document.getElementById('5');
+                              }
+                              else if (document.getElementById("select2").value == 'l')
+                              {
+                                var format=document.getElementById('6');
+                              }
+                              else if (document.getElementById("select2").value == 'r')
+                              {
+                                var format=document.getElementById('7');
+                              }
+                              var format_val = format.value;
+                              var option_val = optionID.value;
+                              var ipAddress = $('#ip').val();
+                              var sportnumber = $('#spn').val();
+                              var scanningmode = $('#sm').val();
+                              e.preventDefault();
+                              $.ajax({
+                                     url: 'http://127.0.0.1:5000/createJobs/',
+                                     data: { 'ipAddress':ipAddress, 'sportnumber':sportnumber,'scanningmode':scanningmode,'option_value':option_val, 'format':format_val},
+                                     method: 'POST',
+                                     success: function(data)
+                                     {
+
+                                        //$('#num').val('');
+                                        //$('#square').html('Square of ' + number + ' is ' + data['square'])
+                                     }
+                                 });
+                          });
+            </script>
+
+    </body>
+</html>

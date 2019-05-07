@@ -20,73 +20,73 @@ def main():
 
     while True:
         #print("Waiting for input from master")
-        #try:
-        task = soc.recv(5120)
-        print(task)
-        taskObject=parseTask(task.decode("utf8"))
-        printTaskDetails(taskObject)
-        returnText = ""
-        if(taskObject['Mode'] == "isAlive"):
-            p = Ping()
-            p.ping(taskObject['Format'], taskObject['DestIP'])
-            returnText = "ISALIVE:"
-            for ip in list(p.statusReport.keys()):
-                returnText = returnText + ip + ","
-            returnText = returnText.strip(',')
-        elif(taskObject['Mode'] == "TCPFULL"):
-            tcp = TCPFullConnect()
-            tcp.scan(taskObject['Format'], taskObject['DestIP'],taskObject['PortList'])
-            #print(tcp.portStatus)
-            returnText = "PORTSCANNING:"
-            openPorts = []
-            numberOfClosedPorts = 0
-            for k in tcp.portStatus.keys():
-                if(tcp.portStatus[k] == "Open"):
-                    openPorts.append(k)
-                else:
-                    numberOfClosedPorts += 1
-            for port in openPorts:
-                returnText = returnText + str(port) + ","
-            returnText = returnText.strip(',')
-            returnText = returnText + ":" + str(numberOfClosedPorts)
+        try:
+            task = soc.recv(5120)
+            print(task)
+            taskObject=parseTask(task.decode("utf8"))
+            printTaskDetails(taskObject)
+            returnText = ""
+            if(taskObject['Mode'] == "isAlive"):
+                p = Ping()
+                p.ping(taskObject['Format'], taskObject['DestIP'])
+                returnText = "ISALIVE:"
+                for ip in list(p.statusReport.keys()):
+                    returnText = returnText + ip + ","
+                returnText = returnText.strip(',')
+            elif(taskObject['Mode'] == "TCPFULL"):
+                tcp = TCPFullConnect()
+                tcp.scan(taskObject['Format'], taskObject['DestIP'],taskObject['PortList'])
+                #print(tcp.portStatus)
+                returnText = "PORTSCANNING:"
+                openPorts = []
+                numberOfClosedPorts = 0
+                for k in tcp.portStatus.keys():
+                    if(tcp.portStatus[k] == "Open"):
+                        openPorts.append(k)
+                    else:
+                        numberOfClosedPorts += 1
+                for port in openPorts:
+                    returnText = returnText + str(port) + ","
+                returnText = returnText.strip(',')
+                returnText = returnText + ":" + str(numberOfClosedPorts)
 
-        elif(taskObject['Mode'] == "TCPSYN"):
-            ss = TCPSYNScan()
-            ss.scan(SOURCE_IP_ADDR, taskObject['DestIP'], taskObject['Format'], taskObject['PortList'])
-            print("=======",ss.portStatus)
-            returnText = "PORTSCANNING:"
-            openPorts = []
-            numberOfClosedPorts = 0
-            for k in ss.portStatus.keys():
-                if(ss.portStatus[k] == "Open"):
-                    openPorts.append(k)
-                else:
-                    numberOfClosedPorts += 1
-            for port in openPorts:
-                returnText = returnText + str(port) + ","
-            returnText = returnText.strip(',')
-            returnText = returnText + ":" + str(numberOfClosedPorts)
-        elif(taskObject['Mode'] == "TCPFIN"):
-            fs = TCPFINScan()
-            fs.scan(SOURCE_IP_ADDR, taskObject['DestIP'], taskObject['Format'], taskObject['PortList'])
-            returnText = "PORTSCANNING:"
-            openPorts = []
-            numberOfClosedPorts = 0
-            for k in fs.portStatus.keys():
-                if(fs.portStatus[k] == "Open|Filtered"):
-                    openPorts.append(k)
-                else:
-                    numberOfClosedPorts += 1
-            for port in openPorts:
-                returnText = returnText + str(port) + ","
-            returnText = returnText.strip(',')
-            returnText = returnText + ":" + str(numberOfClosedPorts)
-        time.sleep(2)
-        soc.sendall(returnText.encode("utf8"))
-        print("Message: ", returnText)
-        #except Exception as e:
-        #    print(e)
-        #    soc.close()
+            elif(taskObject['Mode'] == "TCPSYN"):
+                ss = TCPSYNScan()
+                ss.scan(SOURCE_IP_ADDR, taskObject['DestIP'], taskObject['Format'], taskObject['PortList'])
+                print("=======",ss.portStatus)
+                returnText = "PORTSCANNING:"
+                openPorts = []
+                numberOfClosedPorts = 0
+                for k in ss.portStatus.keys():
+                    if(ss.portStatus[k] == "Open"):
+                        openPorts.append(k)
+                    else:
+                        numberOfClosedPorts += 1
+                for port in openPorts:
+                    returnText = returnText + str(port) + ","
+                returnText = returnText.strip(',')
+                returnText = returnText + ":" + str(numberOfClosedPorts)
+            elif(taskObject['Mode'] == "TCPFIN"):
+                fs = TCPFINScan()
+                fs.scan(SOURCE_IP_ADDR, taskObject['DestIP'], taskObject['Format'], taskObject['PortList'])
+                returnText = "PORTSCANNING:"
+                openPorts = []
+                numberOfClosedPorts = 0
+                for k in fs.portStatus.keys():
+                    if(fs.portStatus[k] == "Open|Filtered"):
+                        openPorts.append(k)
+                    else:
+                        numberOfClosedPorts += 1
+                for port in openPorts:
+                    returnText = returnText + str(port) + ","
+                returnText = returnText.strip(',')
+                returnText = returnText + ":" + str(numberOfClosedPorts)
+            time.sleep(2)
+            soc.sendall(returnText.encode("utf8"))
+            print("Message: ", returnText)
+        except Exception as e:
+            soc.sendall("Error".encode("utf8"))
+            print(e)
 
     soc.close()
 

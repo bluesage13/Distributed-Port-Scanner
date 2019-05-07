@@ -21,7 +21,6 @@ class TCPFullConnect:
         self.portStatus = {}
 
     def scan(self, format, remoteHost, portsList):
-        print("FORMAT ", format)
         if(type(portsList) == int):
             temp = [portsList]
             portsList = temp
@@ -33,7 +32,7 @@ class TCPFullConnect:
 
         if(format == 's'):
             try:
-                self.scanPort(remoteHost, portsList[0])
+                self.scanPort(remoteHost, int(portsList))
             except Exception as e:
                 print(e)
 
@@ -83,20 +82,18 @@ class TCPFullConnect:
 
     def threadScan(self, remoteHost, portsList):
         for port in portsList:
-            print("Scanning")
             self.scanPort(remoteHost, port)
 
     def scanPort(self, remoteHost, port):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         returnCode = sock.connect_ex((remoteHost, port))
-
         try:
             if returnCode == 0:
                 self.portStatus[port] = "Open"
-                print("Port : ", port, " at IP : ", remoteHost, " is Open")
+                #print("Port : ", port, " at IP : ", remoteHost, " is Open")
             else:
                 self.portStatus[port] = "Closed"
-                print("Port : ", port, " at IP : ", remoteHost, " is Closed")
+                #print("Port : ", port, " at IP : ", remoteHost, " is Closed")
             sock.close()
         except:
             print("Conenction issue")

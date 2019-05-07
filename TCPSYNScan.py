@@ -4,24 +4,32 @@ import select
 import threading
 import os
 import time
-from multiprocessing import Process
+from multiprocessing import Process, Manager
 import threading
 from scapy.all import sniff
+from IPHeader import IPHeader
+from TCPHeader import TCPHeader
+from constants import *
+import json
+from random import randint
 
-MAX_PORTS_PER_THREAD = 25
-MAX_THREADS = 100
 
-class TCPFullConnect:
+class TCPSYNScan:
     def __init__(self):
         self.sniffer = None
         self.threadList = []
         self.maxPortsPerThread = MAX_PORTS_PER_THREAD
         self.maxThreads = 0
         self.totalPorts = 0
-        self.portStatus = {}
+        self.portStatus = None
+        self.UID = str(randint(0, 1000))
 
-    def scan(self, format, remoteHost, portsList):
-        print("FORMAT ", format)
+    def startSniffer(self,sourceIP, capturePackets=1):
+        self.sniffer = Process(target=self.listenOnPort, args=(sourceIP,capturePackets,))
+        self.sniffer.start()
+        time.sleep(2)
+
+    def scan(self, sourceIP, destIP, format, portsList):
         if(type(portsList) == int):
             temp = [portsList]
             portsList = temp
@@ -30,12 +38,15 @@ class TCPFullConnect:
         if(self.maxThreads > MAX_THREADS):
             self.maxThreads = MAX_THREADS
             self.maxPortsPerThread = int(numPorts/MAX_THREADS)
-
         if(format == 's'):
+            portsList = int(portsList)
             try:
-                self.scanPort(remoteHost, portsList[0])
+                self.startSniffer(sourceIP)
+                self.scanPort(sourceIP, destIP, portsList)
             except Exception as e:
                 print(e)
+                print("Input not in correct format for option s")
+
 
         elif(format == 'l'):
             try:
@@ -47,8 +58,9 @@ class TCPFullConnect:
                 if(self.maxThreads > MAX_THREADS):
                     self.maxThreads = MAX_THREADS
                     self.maxPortsPerThread = int(numPorts/MAX_THREADS)
-                self.initializeThreads(portsList, remoteHost)
-                print("Starting Thread::",  len(self.threadList))
+                self.startSniffer(sourceIP, self.totalPorts)
+                self.initializeThreads(portsList, sourceIP, destIP)
+                print("Starting Thread::")
                 for thread in self.threadList:
                     thread.start()
             except Exception as e:
@@ -66,8 +78,9 @@ class TCPFullConnect:
                 if(self.maxThreads > MAX_THREADS):
                     self.maxThreads = MAX_THREADS
                     self.maxPortsPerThread = int(numPorts/MAX_THREADS)
-                self.initializeThreads(portsList, remoteHost)
-                print("TOTAL PORTS ", self.totalPorts)
+                self.startSniffer(sourceIP,self.totalPorts)
+
+                self.initializeThreads(portsList, sourceIP, destIP)
                 print("Starting Threads::", len(self.threadList))
                 for thread in self.threadList:
                     thread.start()
@@ -79,30 +92,58 @@ class TCPFullConnect:
             print("Not a valid option")
         for thread in self.threadList:
             thread.join()
+        self.sniffer.join()
+        fileName = self.UID+".json"
+        with open(fileName) as json_file:
+            data = json.load(json_file)
+            self.portStatus = data
+        print(fileName)
+        os.remove(self.UID+".json")
         return
 
-    def threadScan(self, remoteHost, portsList):
+    def threadScan(self, sourceIP, destIP, portsList):
         for port in portsList:
-            print("Scanning")
-            self.scanPort(remoteHost, port)
+            self.scanPort(sourceIP, destIP, port)
 
-    def scanPort(self, remoteHost, port):
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        returnCode = sock.connect_ex((remoteHost, port))
+    def scanPort(self, sourceIP, destIP, destPort):
+        TCP = TCPHeader(sourceIP, destIP)
+        TCP.fillTCPPacket(TCP_SOURCE_PORT, destPort,'S')
+
+        spoofedSYNPacket = TCP.compactHeader
 
         try:
-            if returnCode == 0:
-                self.portStatus[port] = "Open"
-                print("Port : ", port, " at IP : ", remoteHost, " is Open")
-            else:
-                self.portStatus[port] = "Closed"
-                print("Port : ", port, " at IP : ", remoteHost, " is Closed")
+            sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_TCP)
+            sock.sendto(spoofedSYNPacket, (destIP, 0))
             sock.close()
-        except:
-            print("Conenction issue")
+        except Exception as e:
+            print(e)
+            print("Error")
         return
 
-    def initializeThreads(self, portsList, remoteHost):
+    def listenOnPort(self, sourceIP, capturePackets):
+        print("Listening::")
+        filterStr = "tcp and host " + sourceIP + " and port " + str(TCP_SOURCE_PORT)
+        packets=sniff(count=capturePackets * 10,filter=filterStr, timeout=5)
+        print("Total packets captured :", len(packets))
+        statusDict = {}
+        for packet in packets:
+            if(packet['TCP'].flags == 'SA'):
+                statusDict[packet['TCP'].sport] = "Open"
+            if(packet['TCP'].flags == 'RA'):
+                statusDict[packet['TCP'].sport] = "Closed"
+        print("Total Port Reports : " , len(statusDict))
+        for k in statusDict:
+            if(statusDict[k] == "Open"):
+                print("Port ", k, "is Open")
+        fileName = self.UID + ".json"
+        j = json.dumps(statusDict)
+        f = open(fileName,"w")
+        f.write(j)
+        f.close()
+
+        return
+
+    def initializeThreads(self, portsList, sourceIP, destIP):
         numPorts = len(portsList)
         start = 0
         for i in range(0, self.maxThreads):
@@ -112,7 +153,7 @@ class TCPFullConnect:
                 start = start + self.maxPortsPerThread
             else:
                 ports = portsList[start:numPorts]
-            thread = threading.Thread(target=self.threadScan, args=(remoteHost, ports,))
+            thread = threading.Thread(target=self.threadScan, args=(sourceIP, destIP, ports,))
             self.threadList.append(thread)
         print("Threads Initialized")
         return

@@ -38,8 +38,9 @@ class TCPSYNScan:
         if(format == 's'):
             try:
                 self.startSniffer(sourceIP)
-                self.scanPort(sourceIP, destIP, portsList)
-            except:
+                self.scanPort(sourceIP, destIP, 1234)
+            except Exception as e:
+                print(e)
                 print("Input not in correct format for option s")
 
         elif(format == 'l'):
